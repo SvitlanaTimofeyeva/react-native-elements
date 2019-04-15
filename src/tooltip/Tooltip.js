@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { TouchableOpacity, Modal, View, StatusBar } from 'react-native';
+import { TouchableOpacity, Text, Modal, View, ScrollView, StatusBar } from 'react-native';
 
 import { ViewPropTypes, withTheme } from '../config';
 import { ScreenWidth, ScreenHeight, isIOS } from '../helpers';
@@ -110,7 +110,7 @@ class Tooltip extends React.PureComponent {
   };
 
   renderContent = withTooltip => {
-    const { popover, withPointer, toggleOnPress, highlightColor } = this.props;
+    const { popover, height, withPointer, toggleOnPress, highlightColor } = this.props;
 
     if (!withTooltip)
       return this.wrapWithPress(toggleOnPress, this.props.children);
@@ -118,7 +118,7 @@ class Tooltip extends React.PureComponent {
     const { yOffset, xOffset, elementWidth, elementHeight } = this.state;
     const tooltipStyle = this.getTooltipStyle();
     return (
-      <View>
+      <Fragment>
         <View
           style={{
             position: 'absolute',
@@ -132,11 +132,16 @@ class Tooltip extends React.PureComponent {
         >
           {this.props.children}
         </View>
+
         {withPointer && this.renderPointer(tooltipStyle.top)}
         <View style={tooltipStyle} testID="tooltipPopoverContainer">
-          {popover}
+          <ScrollView style={{
+            width: '100%',
+            height: height,
+          }}
+          contentContainerStyle={{flexGrow: 1}}>{popover}</ScrollView>
         </View>
-      </View>
+        </Fragment>
     );
   };
 
@@ -187,14 +192,20 @@ class Tooltip extends React.PureComponent {
           onDismiss={onClose}
           onShow={onOpen}
           onRequestClose={onClose}
-        >
-          <TouchableOpacity
-            style={styles.container(withOverlay)}
-            onPress={this.toggleTooltip}
-            activeOpacity={1}
           >
+
+          {<TouchableOpacity
+                onPress={this.toggleTooltip}
+                style={[{ flex: 1,
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100%'
+                } ]}
+            ></TouchableOpacity>}
+
             {this.renderContent(true)}
-          </TouchableOpacity>
         </Modal>
       </View>
     );
